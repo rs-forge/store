@@ -18,4 +18,3 @@ services:
   graphql:
     build: ./graphql
     container_name: "store/graphql"
-

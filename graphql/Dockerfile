@@ -2,7 +2,8 @@
 FROM node:10 as compile-server
 WORKDIR /usr/src/app
 COPY . .
-RUN npm install
+# this is totally fine, just don't look
+RUN npm install --legacy-peer-deps
 RUN npm run build
 
 CMD [ "npm", "start" ]
