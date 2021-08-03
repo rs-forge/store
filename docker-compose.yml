@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  mongodb:
+    build: 
+      context: ./mongo
+      dockerfile: Dockerfile
+      target: base
+    container_name: "store/mongo"
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+      - MONGO_INITDB_DATABASE=users
+      - MONGO_INITDB_ROOT_USERNAME=mongodb
+      - MONGO_INITDB_ROOT_PASSWORD=mongo
+    ports:
+      - 27017:27017
+    command: mongod
+  graphql:
+    build: ./graphql
+    container_name: "store/graphql"
+
