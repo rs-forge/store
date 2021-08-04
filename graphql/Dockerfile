@@ -4,6 +4,8 @@ WORKDIR /usr/src/app
 COPY . .
 # this is totally fine, just don't look
 RUN npm install --legacy-peer-deps
+#this is unironically the hackiest thing I've ever written
+RUN sed -i 's/req?: Request;/req: Request;/' node_modules/@types/express-serve-static-core/index.d.ts
 RUN npm run build
 
 CMD [ "npm", "start" ]
