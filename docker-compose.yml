@@ -5,11 +5,11 @@ services:
       context: ./mongo
       dockerfile: Dockerfile
       target: base
-    container_name: "store/mongo"
+    container_name: "store.mongo.dev"
     environment:
       - MONGO_DATA_DIR=/data/db
       - MONGO_LOG_DIR=/dev/null
-      - MONGO_INITDB_DATABASE=users
+      - MONGO_INITDB_DATABASE=rs-forge
       - MONGO_INITDB_ROOT_USERNAME=mongodb
       - MONGO_INITDB_ROOT_PASSWORD=mongo
     ports:
@@ -17,4 +17,8 @@ services:
     command: mongod
   graphql:
     build: ./graphql
-    container_name: "store/graphql"
+    depends_on:
+      - mongodb
+    container_name: "store.graphql.dev"
+    ports:
+      - 4000:4000
