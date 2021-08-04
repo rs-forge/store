@@ -1,6 +1,8 @@
 /* eslint-disable */
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -12,51 +14,80 @@ export type Scalars = {
 };
 
 /**  @model  */
-export type Comment = {
-  __typename?: 'Comment';
+export type Band = {
+  __typename?: 'Band';
   _id: Scalars['GraphbackObjectID'];
-  text?: Maybe<Scalars['String']>;
-  description?: Maybe<Scalars['String']>;
-  /** @manyToOne(field: 'comments', key: 'noteId') */
-  note?: Maybe<Note>;
+  name: Scalars['String'];
+  /**
+   * @oneToMany(field: 'band', key: 'bandId')
+   * @oneToMany(field: 'band')
+   */
+  members: Array<Member>;
+  /**
+   * @oneToMany(field: 'band', key: 'bandId')
+   * @oneToMany(field: 'band')
+   */
+  releases: Array<Release>;
 };
 
-export type CommentFilter = {
+
+/**  @model  */
+export type BandMembersArgs = {
+  filter?: Maybe<MemberFilter>;
+};
+
+
+/**  @model  */
+export type BandReleasesArgs = {
+  filter?: Maybe<ReleaseFilter>;
+};
+
+export type BandFilter = {
   _id?: Maybe<GraphbackObjectIdInput>;
-  text?: Maybe<StringInput>;
-  description?: Maybe<StringInput>;
-  noteId?: Maybe<GraphbackObjectIdInput>;
-  and?: Maybe<Array<CommentFilter>>;
-  or?: Maybe<Array<CommentFilter>>;
-  not?: Maybe<CommentFilter>;
+  name?: Maybe<StringInput>;
+  and?: Maybe<Array<BandFilter>>;
+  or?: Maybe<Array<BandFilter>>;
+  not?: Maybe<BandFilter>;
 };
 
-export type CommentResultList = {
-  __typename?: 'CommentResultList';
-  items: Array<Maybe<Comment>>;
+export type BandResultList = {
+  __typename?: 'BandResultList';
+  items: Array<Maybe<Band>>;
   offset?: Maybe<Scalars['Int']>;
   limit?: Maybe<Scalars['Int']>;
   count?: Maybe<Scalars['Int']>;
 };
 
-export type CommentSubscriptionFilter = {
-  and?: Maybe<Array<CommentSubscriptionFilter>>;
-  or?: Maybe<Array<CommentSubscriptionFilter>>;
-  not?: Maybe<CommentSubscriptionFilter>;
+export type BandSubscriptionFilter = {
+  and?: Maybe<Array<BandSubscriptionFilter>>;
+  or?: Maybe<Array<BandSubscriptionFilter>>;
+  not?: Maybe<BandSubscriptionFilter>;
   _id?: Maybe<GraphbackObjectIdInput>;
-  text?: Maybe<StringInput>;
-  description?: Maybe<StringInput>;
+  name?: Maybe<StringInput>;
 };
 
-export type CreateCommentInput = {
-  text?: Maybe<Scalars['String']>;
-  description?: Maybe<Scalars['String']>;
-  noteId?: Maybe<Scalars['GraphbackObjectID']>;
+export type CreateBandInput = {
+  name: Scalars['String'];
 };
 
-export type CreateNoteInput = {
-  title: Scalars['String'];
-  description?: Maybe<Scalars['String']>;
+export type CreateMemberInput = {
+  name: Scalars['String'];
+  instruments: Array<Instrument>;
+  bandId?: Maybe<Scalars['GraphbackObjectID']>;
+};
+
+export type CreateReleaseInput = {
+  name: Scalars['String'];
+  type: ReleaseType;
+  year: Scalars['Int'];
+  bandId?: Maybe<Scalars['GraphbackObjectID']>;
+};
+
+export type CreateTrackInput = {
+  name: Scalars['String'];
+  length: Scalars['String'];
+  index: Scalars['Int'];
+  releaseId?: Maybe<Scalars['GraphbackObjectID']>;
 };
 
 
@@ -71,102 +102,168 @@ export type GraphbackObjectIdInput = {
   between?: Maybe<Array<Scalars['GraphbackObjectID']>>;
 };
 
-export type MutateCommentInput = {
-  _id: Scalars['GraphbackObjectID'];
-  text?: Maybe<Scalars['String']>;
-  description?: Maybe<Scalars['String']>;
-  noteId?: Maybe<Scalars['GraphbackObjectID']>;
-};
+export enum Instrument {
+  Lead = 'LEAD',
+  Rhythm = 'RHYTHM',
+  Bass = 'BASS',
+  Keys = 'KEYS',
+  Vocals = 'VOCALS',
+  BackingVocals = 'BACKING_VOCALS',
+  Drums = 'DRUMS',
+  Percussion = 'PERCUSSION',
+  Sax = 'SAX'
+}
 
-export type MutateNoteInput = {
-  _id: Scalars['GraphbackObjectID'];
-  title?: Maybe<Scalars['String']>;
-  description?: Maybe<Scalars['String']>;
-};
-
-export type Mutation = {
-  __typename?: 'Mutation';
-  createNote?: Maybe<Note>;
-  updateNote?: Maybe<Note>;
-  deleteNote?: Maybe<Note>;
-  createComment?: Maybe<Comment>;
-  updateComment?: Maybe<Comment>;
-  deleteComment?: Maybe<Comment>;
-};
-
-
-export type MutationCreateNoteArgs = {
-  input: CreateNoteInput;
-};
-
-
-export type MutationUpdateNoteArgs = {
-  input: MutateNoteInput;
-};
-
-
-export type MutationDeleteNoteArgs = {
-  input: MutateNoteInput;
-};
-
-
-export type MutationCreateCommentArgs = {
-  input: CreateCommentInput;
-};
-
-
-export type MutationUpdateCommentArgs = {
-  input: MutateCommentInput;
-};
-
-
-export type MutationDeleteCommentArgs = {
-  input: MutateCommentInput;
+export type IntInput = {
+  ne?: Maybe<Scalars['Int']>;
+  eq?: Maybe<Scalars['Int']>;
+  le?: Maybe<Scalars['Int']>;
+  lt?: Maybe<Scalars['Int']>;
+  ge?: Maybe<Scalars['Int']>;
+  gt?: Maybe<Scalars['Int']>;
+  in?: Maybe<Array<Scalars['Int']>>;
+  between?: Maybe<Array<Scalars['Int']>>;
 };
 
 /**  @model  */
-export type Note = {
-  __typename?: 'Note';
+export type Member = {
+  __typename?: 'Member';
   _id: Scalars['GraphbackObjectID'];
-  title: Scalars['String'];
-  description?: Maybe<Scalars['String']>;
-  /**
-   * @oneToMany(field: 'note', key: 'noteId')
-   * @oneToMany(field: 'note')
-   */
-  comments: Array<Maybe<Comment>>;
+  name: Scalars['String'];
+  instruments: Array<Instrument>;
+  /** @manyToOne(field: 'members', key: 'bandId') */
+  band?: Maybe<Band>;
 };
 
-
-/**  @model  */
-export type NoteCommentsArgs = {
-  filter?: Maybe<CommentFilter>;
-};
-
-export type NoteFilter = {
+export type MemberFilter = {
   _id?: Maybe<GraphbackObjectIdInput>;
-  title?: Maybe<StringInput>;
-  description?: Maybe<StringInput>;
-  and?: Maybe<Array<NoteFilter>>;
-  or?: Maybe<Array<NoteFilter>>;
-  not?: Maybe<NoteFilter>;
+  name?: Maybe<StringInput>;
+  instruments?: Maybe<StringInput>;
+  bandId?: Maybe<GraphbackObjectIdInput>;
+  and?: Maybe<Array<MemberFilter>>;
+  or?: Maybe<Array<MemberFilter>>;
+  not?: Maybe<MemberFilter>;
 };
 
-export type NoteResultList = {
-  __typename?: 'NoteResultList';
-  items: Array<Maybe<Note>>;
+export type MemberResultList = {
+  __typename?: 'MemberResultList';
+  items: Array<Maybe<Member>>;
   offset?: Maybe<Scalars['Int']>;
   limit?: Maybe<Scalars['Int']>;
   count?: Maybe<Scalars['Int']>;
 };
 
-export type NoteSubscriptionFilter = {
-  and?: Maybe<Array<NoteSubscriptionFilter>>;
-  or?: Maybe<Array<NoteSubscriptionFilter>>;
-  not?: Maybe<NoteSubscriptionFilter>;
+export type MemberSubscriptionFilter = {
+  and?: Maybe<Array<MemberSubscriptionFilter>>;
+  or?: Maybe<Array<MemberSubscriptionFilter>>;
+  not?: Maybe<MemberSubscriptionFilter>;
   _id?: Maybe<GraphbackObjectIdInput>;
-  title?: Maybe<StringInput>;
-  description?: Maybe<StringInput>;
+  name?: Maybe<StringInput>;
+  instruments?: Maybe<StringInput>;
+};
+
+export type MutateBandInput = {
+  _id: Scalars['GraphbackObjectID'];
+  name?: Maybe<Scalars['String']>;
+};
+
+export type MutateMemberInput = {
+  _id: Scalars['GraphbackObjectID'];
+  name?: Maybe<Scalars['String']>;
+  instruments?: Maybe<Array<Maybe<Instrument>>>;
+  bandId?: Maybe<Scalars['GraphbackObjectID']>;
+};
+
+export type MutateReleaseInput = {
+  _id: Scalars['GraphbackObjectID'];
+  name?: Maybe<Scalars['String']>;
+  type?: Maybe<ReleaseType>;
+  year?: Maybe<Scalars['Int']>;
+  bandId?: Maybe<Scalars['GraphbackObjectID']>;
+};
+
+export type MutateTrackInput = {
+  _id: Scalars['GraphbackObjectID'];
+  name?: Maybe<Scalars['String']>;
+  length?: Maybe<Scalars['String']>;
+  index?: Maybe<Scalars['Int']>;
+  releaseId?: Maybe<Scalars['GraphbackObjectID']>;
+};
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  createMember?: Maybe<Member>;
+  updateMember?: Maybe<Member>;
+  deleteMember?: Maybe<Member>;
+  createBand?: Maybe<Band>;
+  updateBand?: Maybe<Band>;
+  deleteBand?: Maybe<Band>;
+  createRelease?: Maybe<Release>;
+  updateRelease?: Maybe<Release>;
+  deleteRelease?: Maybe<Release>;
+  createTrack?: Maybe<Track>;
+  updateTrack?: Maybe<Track>;
+  deleteTrack?: Maybe<Track>;
+};
+
+
+export type MutationCreateMemberArgs = {
+  input: CreateMemberInput;
+};
+
+
+export type MutationUpdateMemberArgs = {
+  input: MutateMemberInput;
+};
+
+
+export type MutationDeleteMemberArgs = {
+  input: MutateMemberInput;
+};
+
+
+export type MutationCreateBandArgs = {
+  input: CreateBandInput;
+};
+
+
+export type MutationUpdateBandArgs = {
+  input: MutateBandInput;
+};
+
+
+export type MutationDeleteBandArgs = {
+  input: MutateBandInput;
+};
+
+
+export type MutationCreateReleaseArgs = {
+  input: CreateReleaseInput;
+};
+
+
+export type MutationUpdateReleaseArgs = {
+  input: MutateReleaseInput;
+};
+
+
+export type MutationDeleteReleaseArgs = {
+  input: MutateReleaseInput;
+};
+
+
+export type MutationCreateTrackArgs = {
+  input: CreateTrackInput;
+};
+
+
+export type MutationUpdateTrackArgs = {
+  input: MutateTrackInput;
+};
+
+
+export type MutationDeleteTrackArgs = {
+  input: MutateTrackInput;
 };
 
 export type OrderByInput = {
@@ -181,36 +278,120 @@ export type PageRequest = {
 
 export type Query = {
   __typename?: 'Query';
-  getDraftNotes?: Maybe<Array<Maybe<Note>>>;
-  getNote?: Maybe<Note>;
-  findNotes: NoteResultList;
-  getComment?: Maybe<Comment>;
-  findComments: CommentResultList;
+  getMember?: Maybe<Member>;
+  findMembers: MemberResultList;
+  getBand?: Maybe<Band>;
+  findBands: BandResultList;
+  getRelease?: Maybe<Release>;
+  findReleases: ReleaseResultList;
+  getTrack?: Maybe<Track>;
+  findTracks: TrackResultList;
 };
 
 
-export type QueryGetNoteArgs = {
+export type QueryGetMemberArgs = {
   id: Scalars['GraphbackObjectID'];
 };
 
 
-export type QueryFindNotesArgs = {
-  filter?: Maybe<NoteFilter>;
+export type QueryFindMembersArgs = {
+  filter?: Maybe<MemberFilter>;
   page?: Maybe<PageRequest>;
   orderBy?: Maybe<OrderByInput>;
 };
 
 
-export type QueryGetCommentArgs = {
+export type QueryGetBandArgs = {
   id: Scalars['GraphbackObjectID'];
 };
 
 
-export type QueryFindCommentsArgs = {
-  filter?: Maybe<CommentFilter>;
+export type QueryFindBandsArgs = {
+  filter?: Maybe<BandFilter>;
   page?: Maybe<PageRequest>;
   orderBy?: Maybe<OrderByInput>;
 };
+
+
+export type QueryGetReleaseArgs = {
+  id: Scalars['GraphbackObjectID'];
+};
+
+
+export type QueryFindReleasesArgs = {
+  filter?: Maybe<ReleaseFilter>;
+  page?: Maybe<PageRequest>;
+  orderBy?: Maybe<OrderByInput>;
+};
+
+
+export type QueryGetTrackArgs = {
+  id: Scalars['GraphbackObjectID'];
+};
+
+
+export type QueryFindTracksArgs = {
+  filter?: Maybe<TrackFilter>;
+  page?: Maybe<PageRequest>;
+  orderBy?: Maybe<OrderByInput>;
+};
+
+/**  @model  */
+export type Release = {
+  __typename?: 'Release';
+  _id: Scalars['GraphbackObjectID'];
+  name: Scalars['String'];
+  type: ReleaseType;
+  year: Scalars['Int'];
+  /**
+   * @oneToMany(field: 'release', key: 'releaseId')
+   * @oneToMany(field: 'release')
+   */
+  tracks: Array<Track>;
+  /** @manyToOne(field: 'releases', key: 'bandId') */
+  band?: Maybe<Band>;
+};
+
+
+/**  @model  */
+export type ReleaseTracksArgs = {
+  filter?: Maybe<TrackFilter>;
+};
+
+export type ReleaseFilter = {
+  _id?: Maybe<GraphbackObjectIdInput>;
+  name?: Maybe<StringInput>;
+  type?: Maybe<StringInput>;
+  year?: Maybe<IntInput>;
+  bandId?: Maybe<GraphbackObjectIdInput>;
+  and?: Maybe<Array<ReleaseFilter>>;
+  or?: Maybe<Array<ReleaseFilter>>;
+  not?: Maybe<ReleaseFilter>;
+};
+
+export type ReleaseResultList = {
+  __typename?: 'ReleaseResultList';
+  items: Array<Maybe<Release>>;
+  offset?: Maybe<Scalars['Int']>;
+  limit?: Maybe<Scalars['Int']>;
+  count?: Maybe<Scalars['Int']>;
+};
+
+export type ReleaseSubscriptionFilter = {
+  and?: Maybe<Array<ReleaseSubscriptionFilter>>;
+  or?: Maybe<Array<ReleaseSubscriptionFilter>>;
+  not?: Maybe<ReleaseSubscriptionFilter>;
+  _id?: Maybe<GraphbackObjectIdInput>;
+  name?: Maybe<StringInput>;
+  type?: Maybe<StringInput>;
+  year?: Maybe<IntInput>;
+};
+
+export enum ReleaseType {
+  Single = 'SINGLE',
+  Ep = 'EP',
+  Lp = 'LP'
+}
 
 export enum SortDirectionEnum {
   Desc = 'DESC',
@@ -232,40 +413,116 @@ export type StringInput = {
 
 export type Subscription = {
   __typename?: 'Subscription';
-  newNote: Note;
-  updatedNote: Note;
-  deletedNote: Note;
-  newComment: Comment;
-  updatedComment: Comment;
-  deletedComment: Comment;
+  newMember: Member;
+  updatedMember: Member;
+  deletedMember: Member;
+  newBand: Band;
+  updatedBand: Band;
+  deletedBand: Band;
+  newRelease: Release;
+  updatedRelease: Release;
+  deletedRelease: Release;
+  newTrack: Track;
+  updatedTrack: Track;
+  deletedTrack: Track;
 };
 
 
-export type SubscriptionNewNoteArgs = {
-  filter?: Maybe<NoteSubscriptionFilter>;
+export type SubscriptionNewMemberArgs = {
+  filter?: Maybe<MemberSubscriptionFilter>;
 };
 
 
-export type SubscriptionUpdatedNoteArgs = {
-  filter?: Maybe<NoteSubscriptionFilter>;
+export type SubscriptionUpdatedMemberArgs = {
+  filter?: Maybe<MemberSubscriptionFilter>;
 };
 
 
-export type SubscriptionDeletedNoteArgs = {
-  filter?: Maybe<NoteSubscriptionFilter>;
+export type SubscriptionDeletedMemberArgs = {
+  filter?: Maybe<MemberSubscriptionFilter>;
 };
 
 
-export type SubscriptionNewCommentArgs = {
-  filter?: Maybe<CommentSubscriptionFilter>;
+export type SubscriptionNewBandArgs = {
+  filter?: Maybe<BandSubscriptionFilter>;
 };
 
 
-export type SubscriptionUpdatedCommentArgs = {
-  filter?: Maybe<CommentSubscriptionFilter>;
+export type SubscriptionUpdatedBandArgs = {
+  filter?: Maybe<BandSubscriptionFilter>;
 };
 
 
-export type SubscriptionDeletedCommentArgs = {
-  filter?: Maybe<CommentSubscriptionFilter>;
+export type SubscriptionDeletedBandArgs = {
+  filter?: Maybe<BandSubscriptionFilter>;
+};
+
+
+export type SubscriptionNewReleaseArgs = {
+  filter?: Maybe<ReleaseSubscriptionFilter>;
+};
+
+
+export type SubscriptionUpdatedReleaseArgs = {
+  filter?: Maybe<ReleaseSubscriptionFilter>;
+};
+
+
+export type SubscriptionDeletedReleaseArgs = {
+  filter?: Maybe<ReleaseSubscriptionFilter>;
+};
+
+
+export type SubscriptionNewTrackArgs = {
+  filter?: Maybe<TrackSubscriptionFilter>;
+};
+
+
+export type SubscriptionUpdatedTrackArgs = {
+  filter?: Maybe<TrackSubscriptionFilter>;
+};
+
+
+export type SubscriptionDeletedTrackArgs = {
+  filter?: Maybe<TrackSubscriptionFilter>;
+};
+
+/**  @model  */
+export type Track = {
+  __typename?: 'Track';
+  _id: Scalars['GraphbackObjectID'];
+  name: Scalars['String'];
+  length: Scalars['String'];
+  index: Scalars['Int'];
+  /** @manyToOne(field: 'tracks', key: 'releaseId') */
+  release?: Maybe<Release>;
+};
+
+export type TrackFilter = {
+  _id?: Maybe<GraphbackObjectIdInput>;
+  name?: Maybe<StringInput>;
+  length?: Maybe<StringInput>;
+  index?: Maybe<IntInput>;
+  releaseId?: Maybe<GraphbackObjectIdInput>;
+  and?: Maybe<Array<TrackFilter>>;
+  or?: Maybe<Array<TrackFilter>>;
+  not?: Maybe<TrackFilter>;
+};
+
+export type TrackResultList = {
+  __typename?: 'TrackResultList';
+  items: Array<Maybe<Track>>;
+  offset?: Maybe<Scalars['Int']>;
+  limit?: Maybe<Scalars['Int']>;
+  count?: Maybe<Scalars['Int']>;
+};
+
+export type TrackSubscriptionFilter = {
+  and?: Maybe<Array<TrackSubscriptionFilter>>;
+  or?: Maybe<Array<TrackSubscriptionFilter>>;
+  not?: Maybe<TrackSubscriptionFilter>;
+  _id?: Maybe<GraphbackObjectIdInput>;
+  name?: Maybe<StringInput>;
+  length?: Maybe<StringInput>;
+  index?: Maybe<IntInput>;
 };

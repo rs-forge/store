@@ -7,50 +7,68 @@ directive @specifiedBy(
 ) on SCALAR
 
 """ @model """
-type Comment {
+type Band {
   _id: GraphbackObjectID!
-  text: String
-  description: String
+  name: String!
 
-  """@manyToOne(field: 'comments', key: 'noteId')"""
-  note: Note
+  """
+  @oneToMany(field: 'band', key: 'bandId')
+  @oneToMany(field: 'band')
+  """
+  members(filter: MemberFilter): [Member!]!
+
+  """
+  @oneToMany(field: 'band', key: 'bandId')
+  @oneToMany(field: 'band')
+  """
+  releases(filter: ReleaseFilter): [Release!]!
 }
 
-input CommentFilter {
+input BandFilter {
   _id: GraphbackObjectIDInput
-  text: StringInput
-  description: StringInput
-  noteId: GraphbackObjectIDInput
-  and: [CommentFilter!]
-  or: [CommentFilter!]
-  not: CommentFilter
+  name: StringInput
+  and: [BandFilter!]
+  or: [BandFilter!]
+  not: BandFilter
 }
 
-type CommentResultList {
-  items: [Comment]!
+type BandResultList {
+  items: [Band]!
   offset: Int
   limit: Int
   count: Int
 }
 
-input CommentSubscriptionFilter {
-  and: [CommentSubscriptionFilter!]
-  or: [CommentSubscriptionFilter!]
-  not: CommentSubscriptionFilter
+input BandSubscriptionFilter {
+  and: [BandSubscriptionFilter!]
+  or: [BandSubscriptionFilter!]
+  not: BandSubscriptionFilter
   _id: GraphbackObjectIDInput
-  text: StringInput
-  description: StringInput
+  name: StringInput
 }
 
-input CreateCommentInput {
-  text: String
-  description: String
-  noteId: GraphbackObjectID
+input CreateBandInput {
+  name: String!
 }
 
-input CreateNoteInput {
-  title: String!
-  description: String
+input CreateMemberInput {
+  name: String!
+  instruments: [Instrument!]!
+  bandId: GraphbackObjectID
+}
+
+input CreateReleaseInput {
+  name: String!
+  type: ReleaseType!
+  year: Int!
+  bandId: GraphbackObjectID
+}
+
+input CreateTrackInput {
+  name: String!
+  length: String!
+  index: Int!
+  releaseId: GraphbackObjectID
 }
 
 scalar GraphbackObjectID
@@ -66,64 +84,106 @@ input GraphbackObjectIDInput {
   between: [GraphbackObjectID!]
 }
 
-input MutateCommentInput {
-  _id: GraphbackObjectID!
-  text: String
-  description: String
-  noteId: GraphbackObjectID
+enum Instrument {
+  LEAD
+  RHYTHM
+  BASS
+  KEYS
+  VOCALS
+  BACKING_VOCALS
+  DRUMS
+  PERCUSSION
+  SAX
 }
 
-input MutateNoteInput {
-  _id: GraphbackObjectID!
-  title: String
-  description: String
-}
-
-type Mutation {
-  createNote(input: CreateNoteInput!): Note
-  updateNote(input: MutateNoteInput!): Note
-  deleteNote(input: MutateNoteInput!): Note
-  createComment(input: CreateCommentInput!): Comment
-  updateComment(input: MutateCommentInput!): Comment
-  deleteComment(input: MutateCommentInput!): Comment
+input IntInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  in: [Int!]
+  between: [Int!]
 }
 
 """ @model """
-type Note {
+type Member {
   _id: GraphbackObjectID!
-  title: String!
-  description: String
+  name: String!
+  instruments: [Instrument!]!
 
-  """
-  @oneToMany(field: 'note', key: 'noteId')
-  @oneToMany(field: 'note')
-  """
-  comments(filter: CommentFilter): [Comment]!
+  """@manyToOne(field: 'members', key: 'bandId')"""
+  band: Band
 }
 
-input NoteFilter {
+input MemberFilter {
   _id: GraphbackObjectIDInput
-  title: StringInput
-  description: StringInput
-  and: [NoteFilter!]
-  or: [NoteFilter!]
-  not: NoteFilter
+  name: StringInput
+  instruments: StringInput
+  bandId: GraphbackObjectIDInput
+  and: [MemberFilter!]
+  or: [MemberFilter!]
+  not: MemberFilter
 }
 
-type NoteResultList {
-  items: [Note]!
+type MemberResultList {
+  items: [Member]!
   offset: Int
   limit: Int
   count: Int
 }
 
-input NoteSubscriptionFilter {
-  and: [NoteSubscriptionFilter!]
-  or: [NoteSubscriptionFilter!]
-  not: NoteSubscriptionFilter
+input MemberSubscriptionFilter {
+  and: [MemberSubscriptionFilter!]
+  or: [MemberSubscriptionFilter!]
+  not: MemberSubscriptionFilter
   _id: GraphbackObjectIDInput
-  title: StringInput
-  description: StringInput
+  name: StringInput
+  instruments: StringInput
+}
+
+input MutateBandInput {
+  _id: GraphbackObjectID!
+  name: String
+}
+
+input MutateMemberInput {
+  _id: GraphbackObjectID!
+  name: String
+  instruments: [Instrument]
+  bandId: GraphbackObjectID
+}
+
+input MutateReleaseInput {
+  _id: GraphbackObjectID!
+  name: String
+  type: ReleaseType
+  year: Int
+  bandId: GraphbackObjectID
+}
+
+input MutateTrackInput {
+  _id: GraphbackObjectID!
+  name: String
+  length: String
+  index: Int
+  releaseId: GraphbackObjectID
+}
+
+type Mutation {
+  createMember(input: CreateMemberInput!): Member
+  updateMember(input: MutateMemberInput!): Member
+  deleteMember(input: MutateMemberInput!): Member
+  createBand(input: CreateBandInput!): Band
+  updateBand(input: MutateBandInput!): Band
+  deleteBand(input: MutateBandInput!): Band
+  createRelease(input: CreateReleaseInput!): Release
+  updateRelease(input: MutateReleaseInput!): Release
+  deleteRelease(input: MutateReleaseInput!): Release
+  createTrack(input: CreateTrackInput!): Track
+  updateTrack(input: MutateTrackInput!): Track
+  deleteTrack(input: MutateTrackInput!): Track
 }
 
 input OrderByInput {
@@ -137,11 +197,65 @@ input PageRequest {
 }
 
 type Query {
-  getDraftNotes: [Note]
-  getNote(id: GraphbackObjectID!): Note
-  findNotes(filter: NoteFilter, page: PageRequest, orderBy: OrderByInput): NoteResultList!
-  getComment(id: GraphbackObjectID!): Comment
-  findComments(filter: CommentFilter, page: PageRequest, orderBy: OrderByInput): CommentResultList!
+  getMember(id: GraphbackObjectID!): Member
+  findMembers(filter: MemberFilter, page: PageRequest, orderBy: OrderByInput): MemberResultList!
+  getBand(id: GraphbackObjectID!): Band
+  findBands(filter: BandFilter, page: PageRequest, orderBy: OrderByInput): BandResultList!
+  getRelease(id: GraphbackObjectID!): Release
+  findReleases(filter: ReleaseFilter, page: PageRequest, orderBy: OrderByInput): ReleaseResultList!
+  getTrack(id: GraphbackObjectID!): Track
+  findTracks(filter: TrackFilter, page: PageRequest, orderBy: OrderByInput): TrackResultList!
+}
+
+""" @model """
+type Release {
+  _id: GraphbackObjectID!
+  name: String!
+  type: ReleaseType!
+  year: Int!
+
+  """
+  @oneToMany(field: 'release', key: 'releaseId')
+  @oneToMany(field: 'release')
+  """
+  tracks(filter: TrackFilter): [Track!]!
+
+  """@manyToOne(field: 'releases', key: 'bandId')"""
+  band: Band
+}
+
+input ReleaseFilter {
+  _id: GraphbackObjectIDInput
+  name: StringInput
+  type: StringInput
+  year: IntInput
+  bandId: GraphbackObjectIDInput
+  and: [ReleaseFilter!]
+  or: [ReleaseFilter!]
+  not: ReleaseFilter
+}
+
+type ReleaseResultList {
+  items: [Release]!
+  offset: Int
+  limit: Int
+  count: Int
+}
+
+input ReleaseSubscriptionFilter {
+  and: [ReleaseSubscriptionFilter!]
+  or: [ReleaseSubscriptionFilter!]
+  not: ReleaseSubscriptionFilter
+  _id: GraphbackObjectIDInput
+  name: StringInput
+  type: StringInput
+  year: IntInput
+}
+
+enum ReleaseType {
+  SINGLE
+  EP
+  LP
 }
 
 enum SortDirectionEnum {
@@ -163,10 +277,55 @@ input StringInput {
 }
 
 type Subscription {
-  newNote(filter: NoteSubscriptionFilter): Note!
-  updatedNote(filter: NoteSubscriptionFilter): Note!
-  deletedNote(filter: NoteSubscriptionFilter): Note!
-  newComment(filter: CommentSubscriptionFilter): Comment!
-  updatedComment(filter: CommentSubscriptionFilter): Comment!
-  deletedComment(filter: CommentSubscriptionFilter): Comment!
+  newMember(filter: MemberSubscriptionFilter): Member!
+  updatedMember(filter: MemberSubscriptionFilter): Member!
+  deletedMember(filter: MemberSubscriptionFilter): Member!
+  newBand(filter: BandSubscriptionFilter): Band!
+  updatedBand(filter: BandSubscriptionFilter): Band!
+  deletedBand(filter: BandSubscriptionFilter): Band!
+  newRelease(filter: ReleaseSubscriptionFilter): Release!
+  updatedRelease(filter: ReleaseSubscriptionFilter): Release!
+  deletedRelease(filter: ReleaseSubscriptionFilter): Release!
+  newTrack(filter: TrackSubscriptionFilter): Track!
+  updatedTrack(filter: TrackSubscriptionFilter): Track!
+  deletedTrack(filter: TrackSubscriptionFilter): Track!
+}
+
+""" @model """
+type Track {
+  _id: GraphbackObjectID!
+  name: String!
+  length: String!
+  index: Int!
+
+  """@manyToOne(field: 'tracks', key: 'releaseId')"""
+  release: Release
+}
+
+input TrackFilter {
+  _id: GraphbackObjectIDInput
+  name: StringInput
+  length: StringInput
+  index: IntInput
+  releaseId: GraphbackObjectIDInput
+  and: [TrackFilter!]
+  or: [TrackFilter!]
+  not: TrackFilter
+}
+
+type TrackResultList {
+  items: [Track]!
+  offset: Int
+  limit: Int
+  count: Int
+}
+
+input TrackSubscriptionFilter {
+  and: [TrackSubscriptionFilter!]
+  or: [TrackSubscriptionFilter!]
+  not: TrackSubscriptionFilter
+  _id: GraphbackObjectIDInput
+  name: StringInput
+  length: StringInput
+  index: IntInput
 }

@@ -1,23 +1,60 @@
 """ @model """
-type Note {
+type Member {
   _id: GraphbackObjectID!
-  title: String!
-  description: String
-  """
-  @oneToMany(field: 'note')
-  """
-  comments: [Comment]!
+  name: String!
+  instruments: [Instrument!]!
+}
+
+enum Instrument {
+  LEAD
+  RHYTHM
+  BASS
+  KEYS
+  VOCALS
+  BACKING_VOCALS
+  DRUMS
+  PERCUSSION
+  SAX
 }
 
 """ @model """
-type Comment {
+type Band {
   _id: GraphbackObjectID!
-  text: String
-  description: String
+  name: String!
+  """
+  @oneToMany(field: 'band')
+  """
+  members: [Member!]!
+  """
+  @oneToMany(field: 'band')
+  """
+  releases: [Release!]!
 }
 
-type Query {
-  getDraftNotes: [Note]
+""" @model """
+type Release {
+  _id: GraphbackObjectID!
+  name: String!
+  type: ReleaseType!
+  year: Int!
+  """
+  @oneToMany(field: 'release')
+  """
+  tracks: [Track!]!
+}
+
+enum ReleaseType {
+  SINGLE
+  EP
+  LP
+}
+
+""" @model """
+type Track {
+  _id: GraphbackObjectID!
+  name: String!
+  length: String!
+  index: Int!
 }
 
 scalar GraphbackObjectID

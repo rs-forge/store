@@ -8,7 +8,6 @@ import express from 'express';
 import http from 'http';
 import { loadConfigSync } from 'graphql-config';
 import { connectDB } from './db';
-import { noteResolvers } from './resolvers/noteResolvers';
 
 async function start() {
   const app = express();
@@ -37,7 +36,7 @@ async function start() {
 
   const apolloServer = new ApolloServer({
     typeDefs,
-    resolvers: [resolvers, noteResolvers],
+    resolvers: [resolvers],
     context: contextCreator
   });
 

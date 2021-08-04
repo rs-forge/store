@@ -5,7 +5,7 @@ services:
       context: ./mongo
       dockerfile: Dockerfile
       target: base
-    container_name: "store.mongo.dev"
+    container_name: "mongo.dev"
     environment:
       - MONGO_DATA_DIR=/data/db
       - MONGO_LOG_DIR=/dev/null
@@ -19,6 +19,6 @@ services:
     build: ./graphql
     depends_on:
       - mongodb
-    container_name: "store.graphql.dev"
+    container_name: "graphql.dev"
     ports:
       - 4000:4000
